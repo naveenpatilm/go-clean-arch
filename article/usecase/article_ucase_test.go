@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bxcodec/go-clean-arch/article/mocks"
-	ucase "github.com/bxcodec/go-clean-arch/article/usecase"
-	_authorMock "github.com/bxcodec/go-clean-arch/author/mocks"
-	"github.com/bxcodec/go-clean-arch/models"
+	"github.com/naveenpatilm/go-clean-arch/article/mocks"
+	ucase "github.com/naveenpatilm/go-clean-arch/article/usecase"
+	_authorMock "github.com/naveenpatilm/go-clean-arch/author/mocks"
+	"github.com/naveenpatilm/go-clean-arch/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -26,7 +26,7 @@ func TestFetch(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockArticleRepo.On("Fetch", mock.Anything, mock.AnythingOfType("string"),
-			mock.AnythingOfType("int64")).Return(mockListArtilce, "next-cursor", nil).Once()
+			mock.AnythingOfType("int64")).Return(mockListArtilce, nil).Once()
 		mockAuthor := &models.Author{
 			ID:   1,
 			Name: "Iman Tumorang",
@@ -36,10 +36,7 @@ func TestFetch(t *testing.T) {
 		u := ucase.NewArticleUsecase(mockArticleRepo, mockAuthorrepo, time.Second*2)
 		num := int64(1)
 		cursor := "12"
-		list, nextCursor, err := u.Fetch(context.TODO(), cursor, num)
-		cursorExpected := "next-cursor"
-		assert.Equal(t, cursorExpected, nextCursor)
-		assert.NotEmpty(t, nextCursor)
+		list, err := u.Fetch(context.TODO(), cursor, num)
 		assert.NoError(t, err)
 		assert.Len(t, list, len(mockListArtilce))
 
@@ -49,15 +46,14 @@ func TestFetch(t *testing.T) {
 
 	t.Run("error-failed", func(t *testing.T) {
 		mockArticleRepo.On("Fetch", mock.Anything, mock.AnythingOfType("string"),
-			mock.AnythingOfType("int64")).Return(nil, "", errors.New("Unexpexted Error")).Once()
+			mock.AnythingOfType("int64")).Return(nil, errors.New("Unexpexted Error")).Once()
 
 		mockAuthorrepo := new(_authorMock.Repository)
 		u := ucase.NewArticleUsecase(mockArticleRepo, mockAuthorrepo, time.Second*2)
 		num := int64(1)
 		cursor := "12"
-		list, nextCursor, err := u.Fetch(context.TODO(), cursor, num)
+		list, err := u.Fetch(context.TODO(), cursor, num)
 
-		assert.Empty(t, nextCursor)
 		assert.Error(t, err)
 		assert.Len(t, list, 0)
 		mockArticleRepo.AssertExpectations(t)

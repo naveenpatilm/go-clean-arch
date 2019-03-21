@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	articleHttp "github.com/bxcodec/go-clean-arch/article/delivery/http"
-	"github.com/bxcodec/go-clean-arch/article/mocks"
-	"github.com/bxcodec/go-clean-arch/models"
 	"github.com/labstack/echo"
+	articleHttp "github.com/naveenpatilm/go-clean-arch/article/delivery/http"
+	"github.com/naveenpatilm/go-clean-arch/article/mocks"
+	"github.com/naveenpatilm/go-clean-arch/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -28,7 +28,7 @@ func TestFetch(t *testing.T) {
 	mockListArticle = append(mockListArticle, &mockArticle)
 	num := 1
 	cursor := "2"
-	mockUCase.On("Fetch", mock.Anything, cursor, int64(num)).Return(mockListArticle, "10", nil)
+	mockUCase.On("Fetch", mock.Anything, cursor, int64(num)).Return(mockListArticle, nil)
 
 	e := echo.New()
 	req, err := http.NewRequest(echo.GET, "/article?num=1&cursor="+cursor, strings.NewReader(""))
@@ -40,9 +40,6 @@ func TestFetch(t *testing.T) {
 		AUsecase: mockUCase,
 	}
 	handler.FetchArticle(c)
-
-	responseCursor := rec.Header().Get("X-Cursor")
-	assert.Equal(t, "10", responseCursor)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
@@ -52,7 +49,7 @@ func TestFetchError(t *testing.T) {
 	mockUCase := new(mocks.Usecase)
 	num := 1
 	cursor := "2"
-	mockUCase.On("Fetch", mock.Anything, cursor, int64(num)).Return(nil, "", models.ErrInternalServerError)
+	mockUCase.On("Fetch", mock.Anything, cursor, int64(num)).Return(nil, models.ErrInternalServerError)
 
 	e := echo.New()
 	req, err := http.NewRequest(echo.GET, "/article?num=1&cursor="+cursor, strings.NewReader(""))
@@ -64,9 +61,6 @@ func TestFetchError(t *testing.T) {
 		AUsecase: mockUCase,
 	}
 	handler.FetchArticle(c)
-
-	responseCursor := rec.Header().Get("X-Cursor")
-	assert.Equal(t, "", responseCursor)
 
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	mockUCase.AssertExpectations(t)

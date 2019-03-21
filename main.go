@@ -1,20 +1,20 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"time"
 
-	_articleHttpDeliver "github.com/bxcodec/go-clean-arch/article/delivery/http"
-	_articleRepo "github.com/bxcodec/go-clean-arch/article/repository"
-	_articleUcase "github.com/bxcodec/go-clean-arch/article/usecase"
-	_authorRepo "github.com/bxcodec/go-clean-arch/author/repository"
-	"github.com/bxcodec/go-clean-arch/middleware"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
+	_articleHttpDeliver "github.com/naveenpatilm/go-clean-arch/article/delivery/http"
+	_articleRepo "github.com/naveenpatilm/go-clean-arch/article/repository"
+	_articleUcase "github.com/naveenpatilm/go-clean-arch/article/usecase"
+	_authorRepo "github.com/naveenpatilm/go-clean-arch/author/repository"
+	"github.com/naveenpatilm/go-clean-arch/middleware"
+	"github.com/naveenpatilm/go-clean-arch/models"
 	"github.com/spf13/viper"
 )
 
@@ -39,22 +39,21 @@ func main() {
 	dbUser := viper.GetString(`database.user`)
 	dbPass := viper.GetString(`database.pass`)
 	dbName := viper.GetString(`database.name`)
-	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	val := url.Values{}
-	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Jakarta")
-	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	dbConn, err := sql.Open(`mysql`, dsn)
-	if err != nil && viper.GetBool("debug") {
-		fmt.Println(err)
-	}
-	err = dbConn.Ping()
+	sslEnable := viper.GetString(`ssl.mode`)
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s", dbHost, dbPort, dbUser, dbName, dbPass, sslEnable)
+
+	fmt.Print(dsn)
+	dbConn, err := gorm.Open("postgres", dsn)
 	if err != nil {
+		log.Print("Helloe error her")
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
 	defer dbConn.Close()
+
+	dbConn.AutoMigrate(&models.Article{})
+
 	e := echo.New()
 	middL := middleware.InitMiddleware()
 	e.Use(middL.CORS)

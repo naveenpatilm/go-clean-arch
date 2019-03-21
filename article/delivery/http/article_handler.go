@@ -7,10 +7,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/bxcodec/go-clean-arch/models"
+	"github.com/naveenpatilm/go-clean-arch/models"
 
-	"github.com/bxcodec/go-clean-arch/article"
 	"github.com/labstack/echo"
+	"github.com/naveenpatilm/go-clean-arch/article"
 
 	validator "gopkg.in/go-playground/validator.v9"
 )
@@ -45,12 +45,11 @@ func (a *HttpArticleHandler) FetchArticle(c echo.Context) error {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	listAr, nextCursor, err := a.AUsecase.Fetch(ctx, cursor, int64(num))
+	listAr, err := a.AUsecase.Fetch(ctx, cursor, int64(num))
 
 	if err != nil {
 		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
-	c.Response().Header().Set(`X-Cursor`, nextCursor)
 	return c.JSON(http.StatusOK, listAr)
 }
 

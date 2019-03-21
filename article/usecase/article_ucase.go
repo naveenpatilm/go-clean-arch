@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/bxcodec/go-clean-arch/models"
+	"github.com/naveenpatilm/go-clean-arch/models"
 
-	"github.com/bxcodec/go-clean-arch/article"
-	"github.com/bxcodec/go-clean-arch/author"
+	"github.com/naveenpatilm/go-clean-arch/article"
+	"github.com/naveenpatilm/go-clean-arch/author"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -79,7 +79,7 @@ func (a *articleUsecase) fillAuthorDetails(c context.Context, data []*models.Art
 	return data, nil
 }
 
-func (a *articleUsecase) Fetch(c context.Context, cursor string, num int64) ([]*models.Article, string, error) {
+func (a *articleUsecase) Fetch(c context.Context, cursor string, num int64) ([]*models.Article, error) {
 	if num == 0 {
 		num = 10
 	}
@@ -87,17 +87,17 @@ func (a *articleUsecase) Fetch(c context.Context, cursor string, num int64) ([]*
 	ctx, cancel := context.WithTimeout(c, a.contextTimeout)
 	defer cancel()
 
-	listArticle, nextCursor, err := a.articleRepo.Fetch(ctx, cursor, num)
+	listArticle, err := a.articleRepo.Fetch(ctx, cursor, num)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	listArticle, err = a.fillAuthorDetails(ctx, listArticle)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	return listArticle, nextCursor, nil
+	return listArticle, nil
 }
 
 func (a *articleUsecase) GetByID(c context.Context, id int64) (*models.Article, error) {

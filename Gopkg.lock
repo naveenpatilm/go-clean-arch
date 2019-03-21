@@ -13,6 +13,25 @@
   version = "v1.4.2"
 
 [[projects]]
+  digest = "1:ae762be9b28a87ec016b5144172777b1ea92a774ba5a78d85f1d7385902040ce"
+  name = "github.com/naveenpatilm/go-clean-arch"
+  packages = [
+    "article",
+    "article/delivery/http",
+    "article/mocks",
+    "article/repository",
+    "article/usecase",
+    "author",
+    "author/mocks",
+    "author/repository",
+    "middleware",
+    "models",
+  ]
+  pruneopts = "UT"
+  revision = "fc34d41b93696dc6c80d1483f13e74c6d9dea392"
+  version = "v2.0.0"
+
+[[projects]]
   digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -48,14 +67,6 @@
   version = "v0.16.0"
 
 [[projects]]
-  digest = "1:850c49ca338a10fec2cb9e78f793043ed23965489d09e30bcc19fe29719da313"
-  name = "github.com/go-sql-driver/mysql"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
-  version = "v1.3"
-
-[[projects]]
   branch = "master"
   digest = "1:a361611b8c8c75a1091f00027767f7779b29cb37c456a71b8f2604c88057ab40"
   name = "github.com/hashicorp/hcl"
@@ -75,6 +86,25 @@
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
+  branch = "master"
+  digest = "1:5f2f9786bb0fffae076d510429f7546d74267e88e04c530cf0aa7757bb62bc87"
+  name = "github.com/jinzhu/gorm"
+  packages = [
+    ".",
+    "dialects/postgres",
+  ]
+  pruneopts = "UT"
+  revision = "8b07437717e71c2ff00602ae19f8353ba10aafbb"
+
+[[projects]]
+  branch = "master"
+  digest = "1:fd97437fbb6b7dce04132cf06775bd258cce305c44add58eb55ca86c6c325160"
+  name = "github.com/jinzhu/inflection"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "04140366298a54a039076d798123ffa108fff46c"
+
+[[projects]]
   digest = "1:26971a24734a1b911111711f981ffc7463361b36483456f33da623570b7d214c"
   name = "github.com/labstack/echo"
   packages = ["."]
@@ -92,6 +122,18 @@
   pruneopts = "UT"
   revision = "588f4e8bddc6cb45c27b448e925c7fd6a5545434"
   version = "0.2.5"
+
+[[projects]]
+  digest = "1:b18ffc558326ebaed3b4a175617f1e12ed4e3f53d6ebfe5ba372a3de16d22278"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "hstore",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:5149009cc36718234a9ad2896b04b04716808b8d72143b5687c0a15b53132b27"
@@ -302,7 +344,18 @@
   analyzer-version = 1
   input-imports = [
     "github.com/bxcodec/faker",
-    "github.com/go-sql-driver/mysql",
+    "github.com/naveenpatilm/go-clean-arch/article",
+    "github.com/naveenpatilm/go-clean-arch/article/delivery/http",
+    "github.com/naveenpatilm/go-clean-arch/article/mocks",
+    "github.com/naveenpatilm/go-clean-arch/article/repository",
+    "github.com/naveenpatilm/go-clean-arch/article/usecase",
+    "github.com/naveenpatilm/go-clean-arch/author",
+    "github.com/naveenpatilm/go-clean-arch/author/mocks",
+    "github.com/naveenpatilm/go-clean-arch/author/repository",
+    "github.com/naveenpatilm/go-clean-arch/middleware",
+    "github.com/naveenpatilm/go-clean-arch/models",
+    "github.com/jinzhu/gorm",
+    "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",

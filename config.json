@@ -7,11 +7,12 @@
     "timeout":2
   },
   "database": {
-      "host": "mysql",
-      "port": "3306",
-      "user": "user",
-      "pass": "password",
+      "host": "localhost",
+      "port": "5432",
+      "user": "postgres",
+      "pass": "postgres",
       "name": "article"
-  }
+  },
+  "ssl.mode":"disable"
 
 }

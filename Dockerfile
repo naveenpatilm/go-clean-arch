@@ -5,7 +5,7 @@ RUN apk update && apk upgrade && \
     apk --update add git gcc make && \
     go get -u github.com/golang/dep/cmd/dep
 
-WORKDIR /go/src/github.com/bxcodec/go-clean-arch
+WORKDIR /go/src/github.com/naveenpatilm/go-clean-arch
 
 COPY . .
 
@@ -22,6 +22,6 @@ WORKDIR /app
 
 EXPOSE 9090
 
-COPY --from=builder /go/src/github.com/bxcodec/go-clean-arch/engine /app
+COPY --from=builder /go/src/github.com/naveenpatilm/go-clean-arch/engine /app
 
 CMD /app/engine
