@@ -68,3 +68,7 @@
 [[override]]
   branch = "master"
   name = "github.com/gorilla/handlers"
+
+[[override]]
+  branch = "master"
+  name = "github.com/rs/cors"
