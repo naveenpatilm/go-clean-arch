@@ -13,25 +13,6 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:ae762be9b28a87ec016b5144172777b1ea92a774ba5a78d85f1d7385902040ce"
-  name = "github.com/naveenpatilm/go-clean-arch"
-  packages = [
-    "article",
-    "article/delivery/http",
-    "article/mocks",
-    "article/repository",
-    "article/usecase",
-    "author",
-    "author/mocks",
-    "author/repository",
-    "middleware",
-    "models",
-  ]
-  pruneopts = "UT"
-  revision = "fc34d41b93696dc6c80d1483f13e74c6d9dea392"
-  version = "v2.0.0"
-
-[[projects]]
   digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -316,14 +297,6 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:04aea75705cb453e24bf8c1506a24a5a9036537dbc61ddf71d20900d6c7c3ab9"
-  name = "gopkg.in/DATA-DOG/go-sqlmock.v1"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d76b18b42f285b792bf985118980ce9eacea9d10"
-  version = "v1.3.0"
-
-[[projects]]
   digest = "1:3ca85d5ac7dcf27edb78bb343ee73678035cdd987aa95af8d8ffbca355998a65"
   name = "gopkg.in/go-playground/validator.v9"
   packages = ["."]
@@ -344,16 +317,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/bxcodec/faker",
-    "github.com/naveenpatilm/go-clean-arch/article",
-    "github.com/naveenpatilm/go-clean-arch/article/delivery/http",
-    "github.com/naveenpatilm/go-clean-arch/article/mocks",
-    "github.com/naveenpatilm/go-clean-arch/article/repository",
-    "github.com/naveenpatilm/go-clean-arch/article/usecase",
-    "github.com/naveenpatilm/go-clean-arch/author",
-    "github.com/naveenpatilm/go-clean-arch/author/mocks",
-    "github.com/naveenpatilm/go-clean-arch/author/repository",
-    "github.com/naveenpatilm/go-clean-arch/middleware",
-    "github.com/naveenpatilm/go-clean-arch/models",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
@@ -362,7 +325,6 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
     "golang.org/x/sync/errgroup",
-    "gopkg.in/DATA-DOG/go-sqlmock.v1",
     "gopkg.in/go-playground/validator.v9",
   ]
   solver-name = "gps-cdcl"
