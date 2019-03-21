@@ -2,14 +2,16 @@ package http
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
 	"github.com/naveenpatilm/go-clean-arch/models"
 
-	"github.com/labstack/echo"
 	"github.com/naveenpatilm/go-clean-arch/article"
 
 	validator "gopkg.in/go-playground/validator.v9"
@@ -25,40 +27,58 @@ type HttpArticleHandler struct {
 	AUsecase article.Usecase
 }
 
-func NewArticleHttpHandler(e *echo.Echo, us article.Usecase) {
+func NewArticleHttpHandler(r *mux.Router, us article.Usecase) {
 	handler := &HttpArticleHandler{
 		AUsecase: us,
 	}
-	e.GET("/articles", handler.FetchArticle)
-	e.POST("/articles", handler.Store)
-	e.GET("/articles/:id", handler.GetByID)
-	e.DELETE("/articles/:id", handler.Delete)
+	r.HandleFunc("/articles", handler.FetchArticle).Methods("GET")
+	r.HandleFunc("/articles", handler.Store).Methods("POST")
+	r.HandleFunc("/article/{id}", handler.GetByID).Methods("GET")
+	r.HandleFunc("/article/{id}", handler.Delete).Methods("DELETE")
 
 }
 
-func (a *HttpArticleHandler) FetchArticle(c echo.Context) error {
+func (a *HttpArticleHandler) FetchArticle(w http.ResponseWriter, req *http.Request) {
 
-	numS := c.QueryParam("num")
-	num, _ := strconv.Atoi(numS)
-	cursor := c.QueryParam("cursor")
-	ctx := c.Request().Context()
+	params := req.URL.Query()
+	fmt.Println(params)
+	num, err := strconv.Atoi(params.Get("num"))
+	if err != nil {
+		logrus.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	cursor := params.Get("cursor")
+	ctx := req.Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	listAr, err := a.AUsecase.Fetch(ctx, cursor, int64(num))
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		w.WriteHeader(getStatusCode(err))
+		return
 	}
-	return c.JSON(http.StatusOK, listAr)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(getStatusCode(err))
+	json.NewEncoder(w).Encode(listAr)
 }
 
-func (a *HttpArticleHandler) GetByID(c echo.Context) error {
+func (a *HttpArticleHandler) GetByID(w http.ResponseWriter, req *http.Request) {
 
-	idP, err := strconv.Atoi(c.Param("id"))
+	params := mux.Vars(req)
+	fmt.Print("params-------------------------->>>>>>")
+	fmt.Println(params)
+	fmt.Println(req.URL.Query())
+	idP, err := strconv.Atoi(params["id"])
+	if err != nil {
+		logrus.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	id := int64(idP)
 
-	ctx := c.Request().Context()
+	ctx := req.Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -66,9 +86,12 @@ func (a *HttpArticleHandler) GetByID(c echo.Context) error {
 	art, err := a.AUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		w.WriteHeader(getStatusCode(err))
+		return
 	}
-	return c.JSON(http.StatusOK, art)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(getStatusCode(err))
+	json.NewEncoder(w).Encode(art)
 }
 
 func isRequestValid(m *models.Article) (bool, error) {
@@ -82,17 +105,21 @@ func isRequestValid(m *models.Article) (bool, error) {
 	return true, nil
 }
 
-func (a *HttpArticleHandler) Store(c echo.Context) error {
+func (a *HttpArticleHandler) Store(w http.ResponseWriter, req *http.Request) {
 	var article models.Article
-	err := c.Bind(&article)
+	err := json.NewDecoder(req.Body).Decode(&article)
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		logrus.Error(err)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		return
 	}
 
 	if ok, err := isRequestValid(&article); !ok {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		logrus.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
-	ctx := c.Request().Context()
+	ctx := req.Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -100,15 +127,23 @@ func (a *HttpArticleHandler) Store(c echo.Context) error {
 	err = a.AUsecase.Store(ctx, &article)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		logrus.Error(err)
+		w.WriteHeader(http.StatusConflict)
+		return
 	}
-	return c.JSON(http.StatusCreated, article)
+	w.WriteHeader(http.StatusCreated)
 }
 
-func (a *HttpArticleHandler) Delete(c echo.Context) error {
-	idP, err := strconv.Atoi(c.Param("id"))
+func (a *HttpArticleHandler) Delete(w http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	idP, err := strconv.Atoi(params["id"])
+	if err != nil {
+		logrus.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	id := int64(idP)
-	ctx := c.Request().Context()
+	ctx := req.Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -116,9 +151,10 @@ func (a *HttpArticleHandler) Delete(c echo.Context) error {
 	err = a.AUsecase.Delete(ctx, id)
 
 	if err != nil {
-		return c.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+		w.WriteHeader(getStatusCode(err))
+		return
 	}
-	return c.NoContent(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
 }
 
 func getStatusCode(err error) int {
@@ -134,6 +170,8 @@ func getStatusCode(err error) int {
 		return http.StatusNotFound
 	case models.ErrConflict:
 		return http.StatusConflict
+	case models.ErrUnprocessableEntity:
+		return http.StatusUnprocessableEntity
 	default:
 		return http.StatusInternalServerError
 	}

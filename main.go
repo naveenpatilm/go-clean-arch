@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/labstack/echo"
 	_articleHttpDeliver "github.com/naveenpatilm/go-clean-arch/article/delivery/http"
 	_articleRepo "github.com/naveenpatilm/go-clean-arch/article/repository"
 	_articleUcase "github.com/naveenpatilm/go-clean-arch/article/usecase"
@@ -42,10 +43,8 @@ func main() {
 	sslEnable := viper.GetString(`ssl.mode`)
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s", dbHost, dbPort, dbUser, dbName, dbPass, sslEnable)
 
-	fmt.Print(dsn)
 	dbConn, err := gorm.Open("postgres", dsn)
 	if err != nil {
-		log.Print("Helloe error her")
 		log.Fatal(err)
 		os.Exit(1)
 	}
@@ -54,15 +53,17 @@ func main() {
 
 	dbConn.AutoMigrate(&models.Article{})
 
-	e := echo.New()
+	router := mux.NewRouter()
 	middL := middleware.InitMiddleware()
-	e.Use(middL.CORS)
+
 	authorRepo := _authorRepo.NewMysqlAuthorRepository(dbConn)
 	ar := _articleRepo.NewMysqlArticleRepository(dbConn)
 
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
-	au := _articleUcase.NewArticleUsecase(ar, authorRepo, timeoutContext)
-	_articleHttpDeliver.NewArticleHttpHandler(e, au)
 
-	e.Start(viper.GetString("server.address"))
+	au := _articleUcase.NewArticleUsecase(ar, authorRepo, timeoutContext)
+
+	_articleHttpDeliver.NewArticleHttpHandler(router, au)
+
+	http.ListenAndServe(viper.GetString("server.address"), middL.CORS(router))
 }

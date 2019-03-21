@@ -49,6 +49,30 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:1ca17520abf5f399714bd9d404863cc59c22767c75ce33ed6549a4964901713f"
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "51ce91d2eaddeca0ef29a71d766bb3634dadf729"
+
+[[projects]]
+  branch = "master"
+  digest = "1:1ea997b9fa8eb7a7a7f6aa8c89c5c871ecdf191135441dc90a447de019d12c0b"
+  name = "github.com/gorilla/handlers"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ac6d24f88de4584385a0cb3a88f953d08a2f7a05"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d5f97fc268267ec1b61c3453058c738246fc3e746f14b1ae25161513b7367b0c"
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c5c6c98bc25355028a63748a498942a6398ccd22"
+
+[[projects]]
+  branch = "master"
   digest = "1:a361611b8c8c75a1091f00027767f7779b29cb37c456a71b8f2604c88057ab40"
   name = "github.com/hashicorp/hcl"
   packages = [
@@ -317,6 +341,9 @@
   analyzer-version = 1
   input-imports = [
     "github.com/bxcodec/faker",
+    "github.com/gorilla/context",
+    "github.com/gorilla/handlers",
+    "github.com/gorilla/mux",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",

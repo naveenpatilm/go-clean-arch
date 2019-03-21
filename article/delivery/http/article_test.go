@@ -9,7 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/gorilla/mux"
+
 	articleHttp "github.com/naveenpatilm/go-clean-arch/article/delivery/http"
 	"github.com/naveenpatilm/go-clean-arch/article/mocks"
 	"github.com/naveenpatilm/go-clean-arch/models"
@@ -30,16 +31,14 @@ func TestFetch(t *testing.T) {
 	cursor := "2"
 	mockUCase.On("Fetch", mock.Anything, cursor, int64(num)).Return(mockListArticle, nil)
 
-	e := echo.New()
-	req, err := http.NewRequest(echo.GET, "/article?num=1&cursor="+cursor, strings.NewReader(""))
+	req, err := http.NewRequest(http.MethodGet, "/articles?num=1&cursor="+cursor, strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
 	handler := articleHttp.HttpArticleHandler{
 		AUsecase: mockUCase,
 	}
-	handler.FetchArticle(c)
+	handler.FetchArticle(rec, req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
@@ -51,16 +50,14 @@ func TestFetchError(t *testing.T) {
 	cursor := "2"
 	mockUCase.On("Fetch", mock.Anything, cursor, int64(num)).Return(nil, models.ErrInternalServerError)
 
-	e := echo.New()
-	req, err := http.NewRequest(echo.GET, "/article?num=1&cursor="+cursor, strings.NewReader(""))
+	req, err := http.NewRequest(http.MethodGet, "/articles?num=1&cursor="+cursor, strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
 	handler := articleHttp.HttpArticleHandler{
 		AUsecase: mockUCase,
 	}
-	handler.FetchArticle(c)
+	handler.FetchArticle(rec, req)
 
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	mockUCase.AssertExpectations(t)
@@ -77,19 +74,19 @@ func TestGetByID(t *testing.T) {
 
 	mockUCase.On("GetByID", mock.Anything, int64(num)).Return(&mockArticle, nil)
 
-	e := echo.New()
-	req, err := http.NewRequest(echo.GET, "/article/"+strconv.Itoa(int(num)), strings.NewReader(""))
+	req, err := http.NewRequest(http.MethodGet, "/article/"+strconv.Itoa(int(num)), strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("article/:id")
-	c.SetParamNames("id")
-	c.SetParamValues(strconv.Itoa(num))
 	handler := articleHttp.HttpArticleHandler{
 		AUsecase: mockUCase,
 	}
-	handler.GetByID(c)
+	router := mux.NewRouter()
+	mux.SetURLVars(req, map[string]string{
+		"id": strconv.Itoa(num),
+	})
+	router.HandleFunc("/article/{id}", handler.GetByID)
+	router.ServeHTTP(rec, req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
@@ -112,19 +109,15 @@ func TestStore(t *testing.T) {
 
 	mockUCase.On("Store", mock.Anything, mock.AnythingOfType("*models.Article")).Return(nil)
 
-	e := echo.New()
-	req, err := http.NewRequest(echo.POST, "/article", strings.NewReader(string(j)))
+	req, err := http.NewRequest(http.MethodPost, "/articles", strings.NewReader(string(j)))
 	assert.NoError(t, err)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/article")
 
 	handler := articleHttp.HttpArticleHandler{
 		AUsecase: mockUCase,
 	}
-	handler.Store(c)
+	handler.Store(rec, req)
 
 	assert.Equal(t, http.StatusCreated, rec.Code)
 	mockUCase.AssertExpectations(t)
@@ -141,21 +134,21 @@ func TestDelete(t *testing.T) {
 
 	mockUCase.On("Delete", mock.Anything, int64(num)).Return(nil)
 
-	e := echo.New()
-	req, err := http.NewRequest(echo.DELETE, "/article/"+strconv.Itoa(int(num)), strings.NewReader(""))
+	req, err := http.NewRequest(http.MethodDelete, "/article/"+strconv.Itoa(int(num)), strings.NewReader(""))
 	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("article/:id")
-	c.SetParamNames("id")
-	c.SetParamValues(strconv.Itoa(num))
+	router := mux.NewRouter()
+	mux.SetURLVars(req, map[string]string{
+		"id": strconv.Itoa(num),
+	})
 	handler := articleHttp.HttpArticleHandler{
 		AUsecase: mockUCase,
 	}
-	handler.Delete(c)
+	router.HandleFunc("/article/{id}", handler.Delete)
+	router.ServeHTTP(rec, req)
 
-	assert.Equal(t, http.StatusNoContent, rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
 	mockUCase.AssertExpectations(t)
 
 }
